@@ -63,8 +63,17 @@ E por último, o comando `php artisan migrate` faz a migração da tabela que ir
 ## Configuração
 
 Dentro da pasta [config](./config) existe o arquivo [ldapi.php](./config/ldapi.php) que mostra que no arquivo de
-ambiente, o chamado arquivo `.env` devem existir as entradas `LDAPI_USER` que deve conter o sistema usuário da API e o
-campo `LDAPI_PASSWORD`. No arquivo [.env.example](./.env.example) é possível ver um exemplo preenchido. Para obter o seu
+ambiente, o chamado arquivo `.env` devem existir as entradas:
+
+* `LDAPI_USER`:usuário da API;
+* `LDAPI_PASSWORD`: senha do usuário da API;
+* `LDAPI_REQUEST_METHOD`: Método HTTP da requisição de autenticação. Originalmente a API foi desenvolvidada para usar
+somente método `POST` mas isso pode ser alterado facilmente, então é necessário verificar o método com o responsável
+pela API;
+* `LDAPI_AUTH_URL`: URL para qual a requisição de autenticação será enviada. Verifique também com o responsável pela API
+qual é o endereço que recebe as requisições de autenticação.
+
+No arquivo [.env.example](./.env.example) é possível ver um exemplo preenchido. Para obter o seu
 usuário e senha da LDAPI é necessário entrar em contato com o suporte de informática do
 [ICEA](mailto:suporteinformatica@decea.ufop.br).
 
@@ -88,7 +97,15 @@ LDAPI e dependendo da resposta o usuário é autenticado ou não. Caso seja o pr
 imediatamente e automaticamente no banco de dados, usando os atributos provenientes da resposta da LDAPI caso ele esteja
 autorizado e autenticado.
 
+O método `isPermitted` foi incluído somente como um exemplo de como filtrar os usuários capazes de usar o seu sistema.
+Caso ele seja aberto para toda comunidade acadêmica, basta retirar o método e fazer as adaptações necessárias. Nesse
+exemplo, o método só permite acesso de usuários que sejam técnicos ou professores do campus do Instituto de Ciências
+Exatas e Aplicadas, da cidade de João Monlevade.
+
+O modelo [Usuario](./app/Usuario.php) bem como sua [tabela](./database/migrations/2014_10_12_000000_create_users_table.php)
+foram feitos como exemplo e podem ser alterados de acordo com os dados que você irá necessitar.
+
 Todo o código de autenticação está comentado no corpo dos métodos no
 [LoginController](./app/Http/Controllers/Auth/LoginController.php). Existem também o tratamento de eventos, que
-basicamente somente criam uma entrada no arquivo de *log* informando o administrador sobre erros de login, logins que
+basicamente criam uma entrada no arquivo de *log* informando o administrador sobre erros de login, logins que
 foram realizados com sucesso e também logouts feitos, bem como o registro da criação de novos usuários.
