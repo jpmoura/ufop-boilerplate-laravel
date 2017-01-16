@@ -18,6 +18,9 @@ elixir(function(mix) {
     // Fontes
     mix.copy('resources/assets/fonts', 'public/fonts');
 
+    // Plugins Javascript
+    mix.copy('resources/assets/js/jQueryMask', 'public/js/plugins/jQueryMask');
+
     // CSS que não funcionam em conjunto
     // TODO verificar se usando SASS e LESS o erro é resolvido
     mix.copy('resources/assets/css/bootstrap', 'public/css/bootstrap');

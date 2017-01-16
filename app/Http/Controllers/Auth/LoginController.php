@@ -6,6 +6,7 @@ use App\Events\LdapiErrorOnLogin;
 use App\Events\LoginFailed;
 use App\Events\NewUserCreated;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use App\Usuario;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
@@ -63,6 +64,7 @@ class LoginController extends Controller
      */
     private function isPermitted($group)
     {
+        return true;
         $permitted = false;
 
         // Se pertencer à algum grupo vinculado ao campus, está liberado
@@ -83,8 +85,12 @@ class LoginController extends Controller
     /**
      * Realiza o processo de login de usuário.
      */
-    public function postLogin() {
+    public function postLogin(LoginRequest $request) {
         $input = Input::all();
+
+        // Retirada dos pontos e hífen do CPF
+        $input['username'] = str_replace('.', '', $input['username']);
+        $input['username'] = str_replace('-', '', $input['username']);
 
         // Componentes do corpo da requisição
         $requestBody['user'] = $input['username'];
@@ -112,10 +118,7 @@ class LoginController extends Controller
             $responseBody = $ex->getResponse()->getBody()->getContents();
             if(is_null($responseBody)) $requestBody = "Erro desconhecido.";
 
-            session()->flash('erro', 1);
-            session()->flash('mensagem', $responseBody);
-
-            return redirect()->back();
+            return redirect()->back()->withErrors(['credentials' => $responseBody]);
         }
         catch (RequestException $ex) { // Erros relacionados ao servidor
             $credentials['username'] = $input["username"];
@@ -123,9 +126,7 @@ class LoginController extends Controller
 
             Event::fire(new LdapiErrorOnLogin($credentials)); // Dispara um evento de falha de login
 
-            session()->flash('mensagem', $ex->getResponse()->getBody()->getContents());
-
-            return redirect()->back();
+            return redirect()->back()->withErrors(['server' => $ex->getResponse()->getBody()->getContents()]);
         }
 
         // Se nenhuma excessão foi jogada, então o usuário está autenticado
@@ -137,7 +138,7 @@ class LoginController extends Controller
             // Recupera os atributos retornados pelo servidor de autenticação
             $userData = json_decode($response->getBody()->getContents());
 
-            //Verificar se ele pertence a algum grupo que é permitido de usar o sistema
+            // Verificar se ele pertence a algum grupo que é permitido de usar o sistema, por exemplo
             if($this->isPermitted($userData->id_grupo))
             { // Se for permitido, então cria-se um novo usuário
                 $user = Usuario::create([
@@ -148,11 +149,7 @@ class LoginController extends Controller
 
                 Event::fire(new NewUserCreated($user));
             }
-            else
-            {
-                session()->flash('mensagem', 'Você não permissão para usar o sistema.');
-                return redirect()->route('showLogin');
-            }
+            else return redirect()->back()->withErrors(['credentials' => 'Você não permissão para usar o sistema.']);
         }
 
         // Se o usuário selecionou a opção de ser lembrado,
