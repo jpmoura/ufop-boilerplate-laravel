@@ -64,7 +64,6 @@ class LoginController extends Controller
      */
     private function isPermitted($group)
     {
-        return true;
         $permitted = false;
 
         // Se pertencer à algum grupo vinculado ao campus, está liberado
