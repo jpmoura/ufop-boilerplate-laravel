@@ -71,7 +71,7 @@
 
 <footer class="text-center">
     <!-- Default to the left -->
-    <strong>Copyleft <i class="fa fa-creative-commons"></i> {{ date("Y") }} <a href="https://github.com/jpmoura/ufop-boilerplate-laravel">UFOP Boilerplate</a></strong>.
+    <strong>Copyleft <i class="fa fa-creative-commons"></i> {{ date("Y") }} <a href="https://github.com/jpmoura/ufop-boilerplate-laravel">{!! config('app.name') !!}</a></strong>.
 </footer>
 
 {!! HTML::script('js/app.js') !!}
