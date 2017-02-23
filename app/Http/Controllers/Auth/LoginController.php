@@ -9,10 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Usuario;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Auth;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Event;
-use Input;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
@@ -59,7 +55,7 @@ class LoginController extends Controller
 
     /**
      * Determina se um usuário é capaz de usar o sistema ou não baseado no seu grupo.
-     * @param $group ID do grupo o qual o usuário pertence
+     * @param int $group ID do grupo o qual o usuário pertence
      * @return bool True se é autorizado a usar e False caso contrário
      */
     private function isPermitted($group)
@@ -85,7 +81,7 @@ class LoginController extends Controller
      * Realiza o processo de login de usuário.
      */
     public function postLogin(LoginRequest $request) {
-        $input = Input::all();
+        $input = $request->all();
 
         // Retirada dos pontos e hífen do CPF
         $input['username'] = str_replace('.', '', $input['username']);
@@ -97,11 +93,11 @@ class LoginController extends Controller
         $requestBody['attributes'] = ["cpf", "nomecompleto", "email", "id_grupo"]; // Atributos que devem ser retornados em caso autenticação confirmada
 
         // Chamada de autenticação para a LDAPI
-        $httpClient = new Client();
+        $httpClient = new Client(['verify' => false]);
         try
         {
-            $response = $httpClient->request(Config::get('ldapi.requestMethod'), Config::get('ldapi.authUrl'), [
-                "auth" => [Config::get('ldapi.user'), Config::get('ldapi.password'), "Basic"],
+            $response = $httpClient->request(config('ldapi.requestMethod'), config('ldapi.authUrl'), [
+                "auth" => [config('ldapi.user'), config('ldapi.password'), "Basic"],
                 "body" => json_encode($requestBody),
                 "headers" => [
                     "Content-type" => "application/json",
@@ -112,7 +108,7 @@ class LoginController extends Controller
             $credentials['username'] = $input["username"];
             $credentials['password'] = $input['password'];
 
-            Event::fire(new LoginFailed($credentials)); // Dispara um evento de falha de login
+            event(new LoginFailed($credentials)); // Dispara um evento de falha de login
 
             $responseBody = $ex->getResponse()->getBody()->getContents();
             if(is_null($responseBody)) $requestBody = "Erro desconhecido.";
@@ -123,9 +119,9 @@ class LoginController extends Controller
             $credentials['username'] = $input["username"];
             $credentials['password'] = $input['password'];
 
-            Event::fire(new LdapiErrorOnLogin($credentials)); // Dispara um evento de falha de login
+            event(new LdapiErrorOnLogin($credentials)); // Dispara um evento de falha de login
 
-            return redirect()->back()->withErrors(['server' => $ex->getResponse()->getBody()->getContents()]);
+            return redirect()->back()->withErrors(['server' => $ex->getMessage()]);
         }
 
         // Se nenhuma excessão foi jogada, então o usuário está autenticado
@@ -146,14 +142,14 @@ class LoginController extends Controller
                     'nome' => ucwords(strtolower($userData->nomecompleto)),
                 ]);
 
-                Event::fire(new NewUserCreated($user));
+                event(new NewUserCreated($user));
             }
             else return redirect()->back()->withErrors(['credentials' => 'Você não permissão para usar o sistema.']);
         }
 
         // Se o usuário selecionou a opção de ser lembrado,
-        if(isset($input['remember-me']))  Auth::login($user, true); // Então ele deve ser lembrado
-        else Auth::login($user); // Senão é um login ordinário
+        if(isset($input['remember-me']))  auth()->login($user, true); // Então ele deve ser lembrado
+        else auth()->login($user); // Senão é um login ordinário
 
         // Redireciona para a página pretendida ou para a página inicial do sistema
         return redirect()->intended('/');
