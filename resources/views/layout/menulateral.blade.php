@@ -17,7 +17,8 @@
                     <li><a href="#"><i class="fa fa-th-list"></i> <span>Item II</span></a></li>
                 </ul>
             </li>
-            <li><a href="{{ route('logs') }}"><i class="fa fa-database" aria-hidden="true"></i><span>Logs</span></a></li>
+            <li><a href="#"><i class="fa fa-info"></i><span>Exemplo de Item</span></a></li>
+            <li><a href="{{ route('logs') }}" target="_blank"><i class="fa fa-database" aria-hidden="true"></i><span>Logs</span></a></li>
             <li><a href="{{ route('logout') }}"><i class="fa fa-sign-out" aria-hidden="true"></i><span>Sair</span></a></li>
         </ul>
     </section>
