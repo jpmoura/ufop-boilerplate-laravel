@@ -33,12 +33,12 @@
             <form class="form" action="{{ route('login') }}" method="post">
                 {{ csrf_field() }}
 
-                <div class="input-group {{ $errors->has('credentials') || $errors->has('username') ? ' has-error' : '' }}">
+                <div class="input-group {{ $errors->has('credentials') || $errors->has('server') ? ' has-error' : '' }}">
                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
                     <input data-mask="000.000.000-00" data-mask-reverse="true" type="text" name="username" class="form-control" minlength="11" maxlength="14" placeholder="CPF do Minha UFOP" required autofocus data-toggle="tooltip" data-placement="right" title="CPF do Minha UFOP" >
                 </div>
 
-                <div class="input-group {{ $errors->has('credentials') ||$errors->has('password') ? ' has-error' : '' }}">
+                <div class="input-group {{ $errors->has('credentials') ||$errors->has('server') ? ' has-error' : '' }}">
                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
                     <input type="password" name="password" class="form-control" placeholder="Senha do Minha UFOP" required data-toggle="tooltip" data-placement="right" title="Senha do Minha UFOP">
                 </div>
@@ -46,13 +46,13 @@
                 <br />
 
                 <div class="text-center">
-                    <input type="checkbox" name="remember-me" />
-                    <label>Lembre-se de mim</label>
+                    <input id="remember-me" type="checkbox" name="remember-me" />
+                    <label for="remember-me">Lembre-se de mim</label>
                 </div>
 
                 @if($errors)
                     @foreach($errors->all() as $error)
-                        <h5 class="text-center text-danger"><b>{!! $error !!}</b></h5>
+                        <h5 class="text-center text-danger text-bold"><i class="fa fa-exclamation-circle"></i> Erro<br />{!! $error !!}</h5>
                     @endforeach
                 @endif
 
