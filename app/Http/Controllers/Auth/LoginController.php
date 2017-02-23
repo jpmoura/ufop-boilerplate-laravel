@@ -69,6 +69,10 @@ class LoginController extends Controller
             case 715: // DECEA
             case 716: // DEENP
             case 7126: // DECOM - Ouro Preto
+            case 7213:  // Engenharia da Computação
+            case 7215:  // Engenharia de Produção
+            case 7217:  // Enegenharia Elétrica
+            case 7236:  // Sistemas de Informação
             case 71130: // DECSI
             case 71481: // DEELT
                 $permitted = true;
