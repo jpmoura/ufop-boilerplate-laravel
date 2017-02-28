@@ -24,7 +24,7 @@
 <body class="hold-transition login-page skin-ufop guest">
 <div class="login-box">
     <div class="login-logo">
-        <i class="fa fa-desktop"></i> UFOP Boilerplate
+        <i class="fa fa-desktop"></i> {!! config('app.name') !!}
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body ufop-border">
